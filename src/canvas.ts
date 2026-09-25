@@ -1,40 +1,33 @@
-export function drawLabel(
-  canvas: HTMLCanvasElement,
+import {
+  CANVAS_WIDTH,
+  CANVAS_HEIGHT,
+  QR_SIZE,
+  QR_MARGIN_X,
+  QR_MARGIN_TOP,
+  LABEL_FONT_SIZE,
+} from "./layout";
+
+export function composeFinalImage(
+  outputCanvas: HTMLCanvasElement,
+  qrCanvas: HTMLCanvasElement,
   label: string,
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-      reject(new Error("Could not get 2D context"));
-      return;
-    }
+): void {
+  outputCanvas.width = CANVAS_WIDTH;
+  outputCanvas.height = CANVAS_HEIGHT;
 
-    // Snapshot the QR that's currently on the canvas, because
-    // resizing the canvas below will erase it.
-    const qrSnapshot = canvas.toDataURL("image/png");
-    const img = new Image();
+  const ctx = outputCanvas.getContext("2d");
+  if (!ctx) return;
 
-    img.onload = () => {
-      const labelHeight = 40;
-      const qrHeight = canvas.height;
+  ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-      // Changing width/height on a canvas clears its contents —
+  ctx.drawImage(qrCanvas, QR_MARGIN_X, QR_MARGIN_TOP, QR_SIZE, QR_SIZE);
 
-      canvas.height = qrHeight + labelHeight;
+  const labelAreaTop = QR_MARGIN_TOP + QR_SIZE;
+  const labelAreaHeight = CANVAS_HEIGHT - labelAreaTop;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-
-      ctx.fillStyle = "#000000";
-      ctx.font = "bold 18px sans-serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(label, canvas.width / 2, qrHeight + labelHeight / 2);
-
-      resolve();
-    };
-
-    img.onerror = () => reject(new Error("Failed to reload QR snapshot"));
-    img.src = qrSnapshot;
-  });
+  ctx.fillStyle = "#000000";
+  ctx.font = `bold ${LABEL_FONT_SIZE}px sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, CANVAS_WIDTH / 2, labelAreaTop + labelAreaHeight / 2);
 }

@@ -1,5 +1,6 @@
 import QRCode from "qrcode";
 import type { TokenAmount } from "./types";
+import { QR_SIZE } from "./layout";
 
 export function isValidGmId(gmId: string): boolean {
   return /^\d{4}$/.test(gmId);
@@ -21,7 +22,7 @@ export async function generateQrCode(
 ): Promise<void> {
   await QRCode.toCanvas(canvas, url, {
     margin: 1,
-    width: 300,
+    width: QR_SIZE,
     color: {
       dark: "#000000ff",
       light: "#ffffff00",

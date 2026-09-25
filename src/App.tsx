@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { TOKEN_AMOUNTS, type TokenAmount } from "./types";
 import { isValidGmId, buildLabel, buildUrl, generateQrCode } from "./qr";
-import { drawLabel } from "./canvas";
+import { composeFinalImage } from "./canvas";
 import { downloadCanvasAsPng } from "./download";
 import "./App.css";
 
@@ -9,25 +9,27 @@ function App() {
   const [tokenAmount, setTokenAmount] = useState<TokenAmount>("100");
   const [gmId, setGmId] = useState("");
   const [hasGenerated, setHasGenerated] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  const outputCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const gmIdIsValid = isValidGmId(gmId);
 
   async function handleGenerate() {
-    if (!canvasRef.current || !gmIdIsValid) return;
+    if (!qrCanvasRef.current || !outputCanvasRef.current || !gmIdIsValid)
+      return;
 
     const url = buildUrl(gmId, tokenAmount);
     const label = buildLabel(gmId, tokenAmount);
 
-    await generateQrCode(canvasRef.current, url);
-    await drawLabel(canvasRef.current, label);
+    await generateQrCode(qrCanvasRef.current, url);
+    composeFinalImage(outputCanvasRef.current, qrCanvasRef.current, label);
 
     setHasGenerated(true);
   }
 
   function handleDownload() {
-    if (!canvasRef.current) return;
-    downloadCanvasAsPng(canvasRef.current, buildLabel(gmId, tokenAmount));
+    if (!outputCanvasRef.current) return;
+    downloadCanvasAsPng(outputCanvasRef.current, buildLabel(gmId, tokenAmount));
   }
 
   return (
@@ -67,7 +69,11 @@ function App() {
         Generate
       </button>
 
-      <canvas ref={canvasRef} className="qr-canvas" />
+      {/* Hidden working canvas — just holds the raw QR before compositing */}
+      <canvas ref={qrCanvasRef} style={{ display: "none" }} />
+
+      {/* Visible final output — this is what gets downloaded */}
+      <canvas ref={outputCanvasRef} className="qr-canvas" />
 
       {hasGenerated && <button onClick={handleDownload}>Download PNG</button>}
     </div>

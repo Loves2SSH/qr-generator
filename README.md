@@ -1,32 +1,28 @@
-# React + TypeScript + Vite
+# QR Code Generator
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+ **Live Demo:** [https://qr-generator-cock5.vercel.app/](https://qr-generator-cock5.vercel.app/)
 
-Currently, two official plugins are available:
+A React + TypeScript app built for a client rewards system. It generates custom QR codes for event attendees and staff, overlays them onto a template, and exports the final image ready for print or digital use.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+##  What it does
 
-## React Compiler
+I built this to solve a specific problem for an event rewards system: we needed a fast way to generate and track QR codes tied to specific Game Master IDs and token amounts. 
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Instead of just generating a raw QR code, the app takes the QR data, renders it onto an HTML5 Canvas, overlays it onto a custom template, applies the correct sizing, and embeds PNG metadata into the final file before download.
 
-## Expanding the Oxlint configuration
+## 🛠️ Tech Stack
+- **React 19** + **TypeScript** (Vite)
+- `qrcode` (for the core generation)
+- HTML5 Canvas (for image compositing and export)
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+##  How it's built (and why)
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+- **It all happens in the browser.** I used the HTML5 Canvas API to handle all the image generation and compositing client-side. There's no backend needed for image processing, which keeps it fast and means no server costs.
+- **Split logic out of the UI.** `App.tsx` just handles the UI state. The actual work is separated into dedicated files: `qr.ts` (validation and URL building), `canvas.ts` (the rendering logic), and `layout.ts` (sizing). It kept the components clean and made the canvas math much easier to debug.
+- **Validation matters.** The system requires a strict 4-digit GM ID. The app validates this before generating the code so we don't end up with broken or malformed QR codes in production.
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+##  Running it locally
+
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/Loves2SSH/qr-generator.git

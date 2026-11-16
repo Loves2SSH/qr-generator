@@ -11,7 +11,8 @@ export function buildLabel(gmId: string, tokenAmount: TokenAmount): string {
 }
 
 export function buildUrl(gmId: string, tokenAmount: TokenAmount): string {
-  const base = "https://yourapp.example/redeem";
+  const base =
+    import.meta.env.VITE_REDEEM_BASE_URL || "https://yourapp.example/redeem";
   const params = new URLSearchParams({ gm: gmId, tokens: tokenAmount });
   return `${base}?${params.toString()}`;
 }
